@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.SusheguanliyuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.banji_id as banjiId
+        ,a.username as username
+        ,a.password as password
+        ,a.susheguanliyuan_name as susheguanliyuanName
+        ,a.susheguanliyuan_phone as susheguanliyuanPhone
+        ,a.susheguanliyuan_photo as susheguanliyuanPhoto
+        ,a.susheguanliyuan_email as susheguanliyuanEmail
+        ,a.sex_types as sexTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.SusheguanliyuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,banji.banji_name as banjiName
+        ,banji.banji_address as banjiAddress
+        ,banji.banji_number as banjiNumber
+        ,banji.banji_content as banjiContent
+
+        FROM susheguanliyuan  a
+        left JOIN banji banji ON a.banji_id = banji.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.banjiId != null and params.banjiId != ''">
+                and (
+                    a.banji_id = #{params.banjiId}
+                )
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.susheguanliyuanName != '' and params.susheguanliyuanName != null and params.susheguanliyuanName != 'null' ">
+                and a.susheguanliyuan_name like CONCAT('%',#{params.susheguanliyuanName},'%')
+            </if>
+            <if test=" params.susheguanliyuanPhone != '' and params.susheguanliyuanPhone != null and params.susheguanliyuanPhone != 'null' ">
+                and a.susheguanliyuan_phone like CONCAT('%',#{params.susheguanliyuanPhone},'%')
+            </if>
+            <if test=" params.susheguanliyuanEmail != '' and params.susheguanliyuanEmail != null and params.susheguanliyuanEmail != 'null' ">
+                and a.susheguanliyuan_email like CONCAT('%',#{params.susheguanliyuanEmail},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断班级的id不为空 -->
+            <if test=" params.banjiIdNotNull != '' and params.banjiIdNotNull != null and params.banjiIdNotNull != 'null' ">
+                and a.banji_id IS NOT NULL
+            </if>
+            <if test=" params.banjiName != '' and params.banjiName != null and params.banjiName != 'null' ">
+                and banji.banji_name like CONCAT('%',#{params.banjiName},'%')
+            </if>
+            <if test=" params.banjiAddress != '' and params.banjiAddress != null and params.banjiAddress != 'null' ">
+                and banji.banji_address like CONCAT('%',#{params.banjiAddress},'%')
+            </if>
+            <if test="params.banjiNumberStart != null  and params.banjiNumberStart != '' ">
+                <![CDATA[  and banji.banji_number >= #{params.banjiNumberStart}   ]]>
+            </if>
+            <if test="params.banjiNumberEnd != null  and params.banjiNumberEnd != '' ">
+                <![CDATA[  and banji.banji_number <= #{params.banjiNumberEnd}   ]]>
+            </if>
+            <if test="params.banjiNumber != null  and params.banjiNumber != '' ">
+                and banji.banji_number = #{params.banjiNumber}
+            </if>
+            <if test=" params.banjiContent != '' and params.banjiContent != null and params.banjiContent != 'null' ">
+                and banji.banji_content like CONCAT('%',#{params.banjiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(banji.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(banji.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
